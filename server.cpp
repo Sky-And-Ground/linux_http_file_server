@@ -78,8 +78,10 @@ void Server::start() {
             inet_ntop(AF_INET, &(client_addr.sin_addr), ip.data(), (socklen_t)ip.size());
             port = ntohs(client_addr.sin_port);
 
-            pool.submit([client, &ip, port]() {
-                std::unique_ptr<Connection> conn{ new Connection{ client, ip.data(), port } };
+            auto alived_ip = std::make_shared<std::string>(ip.data());
+
+            pool.submit([client, alived_ip, port]() {
+                std::unique_ptr<Connection> conn{ new Connection{ client, alived_ip->c_str(), port } };
 
                 try {
                     conn->handle(callback);
